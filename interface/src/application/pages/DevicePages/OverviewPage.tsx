@@ -25,6 +25,7 @@ import { mean, map, min, max } from '@electricui/dataflow'
 
 import { Colors } from '@blueprintjs/core'
 import { IconName, IconNames } from '@blueprintjs/icons'
+import { useDarkMode } from '@electricui/components-desktop'
 
 const layoutDescription = `
 TemperatureChart TemperatureDetails
@@ -62,6 +63,8 @@ function DataEntry(props: {
 }
 
 export const OverviewPage = (props: RouteComponentProps) => {
+  const isDarkMode = useDarkMode()
+
   const meanTemperatureDS = mean(temperatureDataSource)
   const minTemperatureDS = min(temperatureDataSource)
   const maxTemperatureDS = max(temperatureDataSource)
@@ -122,6 +125,29 @@ export const OverviewPage = (props: RouteComponentProps) => {
               <Areas.TemperatureDetails>
                 <Composition templateRows="1fr 70px" gap={10} height="100%">
                   <Card style={{ height: '100%' }}>
+                    <div
+                      style={{
+                        alignContent: 'center',
+                        display: 'grid',
+                        gridTemplateColumns: '1fr',
+                        gap: 10,
+                        marginBottom: 20,
+                        alignSelf: 'start',
+                      }}
+                    >
+                      <Tag
+                        style={{
+                          backgroundColor: isDarkMode
+                            ? Colors.GOLD1
+                            : Colors.GOLD5,
+                          color: isDarkMode ? Colors.WHITE : Colors.BLACK,
+                          textAlign: 'center',
+                        }}
+                      >
+                        Temperature
+                      </Tag>
+                    </div>
+
                     <Composition templateCols="2fr 1fr">
                       <DataEntry
                         icon={IconNames.TEMPERATURE}
@@ -218,8 +244,8 @@ export const OverviewPage = (props: RouteComponentProps) => {
                   >
                     <Tag
                       style={{
-                        backgroundColor: Colors.RED3,
-                        color: Colors.WHITE,
+                        backgroundColor: isDarkMode ? Colors.RED1 : Colors.RED5,
+                        color: isDarkMode ? Colors.WHITE : Colors.BLACK,
                         textAlign: 'center',
                       }}
                     >
@@ -227,8 +253,10 @@ export const OverviewPage = (props: RouteComponentProps) => {
                     </Tag>
                     <Tag
                       style={{
-                        backgroundColor: Colors.BLUE3,
-                        color: Colors.WHITE,
+                        backgroundColor: isDarkMode
+                          ? Colors.BLUE1
+                          : Colors.BLUE5,
+                        color: isDarkMode ? Colors.WHITE : Colors.BLACK,
                         textAlign: 'center',
                       }}
                     >
