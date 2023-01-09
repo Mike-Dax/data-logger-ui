@@ -8,7 +8,7 @@ import {
   ZoomWrapper,
 } from '@electricui/components-desktop-charts'
 
-import { Card, Icon, Tag } from '@blueprintjs/core'
+import { ButtonGroup, Card, Icon, Tag } from '@blueprintjs/core'
 import { Composition } from 'atomic-layout'
 import { IntervalRequester } from '@electricui/components-core'
 import { MessageDataSource, Queryable } from '@electricui/core-timeseries'
@@ -19,6 +19,7 @@ import {
   TimeStampedTemperatureData,
   TimeStampedPressureData,
 } from '../../../transport-manager/config/codecs'
+import { PolledCSVLogger } from '@electricui/components-desktop-blueprint-loggers'
 
 import { mean, map, min, max } from '@electricui/dataflow'
 
@@ -62,6 +63,8 @@ function DataEntry(props: {
 
 export const OverviewPage = (props: RouteComponentProps) => {
   const meanTemperatureDS = mean(temperatureDataSource)
+  const minTemperatureDS = min(temperatureDataSource)
+  const maxTemperatureDS = max(temperatureDataSource)
 
   const pressure1DS = map(pressureDataSource, data => data.pressure_1)
   const pressure2DS = map(pressureDataSource, data => data.pressure_2)
@@ -117,17 +120,59 @@ export const OverviewPage = (props: RouteComponentProps) => {
               </Areas.TemperatureChart>
 
               <Areas.TemperatureDetails>
-                <Card style={{ height: '100%' }}>
-                  <Composition templateCols="2fr 1fr">
-                    <DataEntry
-                      icon={IconNames.TEMPERATURE}
-                      color={Colors.GOLD3}
-                      title="Mean Temperature"
-                      dataSource={meanTemperatureDS}
-                      unit="°C"
-                    />
-                  </Composition>
-                </Card>
+                <Composition templateRows="1fr 70px" gap={10} height="100%">
+                  <Card style={{ height: '100%' }}>
+                    <Composition templateCols="2fr 1fr">
+                      <DataEntry
+                        icon={IconNames.TEMPERATURE}
+                        color={Colors.GOLD3}
+                        title="Mean Temperature"
+                        dataSource={meanTemperatureDS}
+                        unit="°C"
+                      />
+                      <DataEntry
+                        icon={IconNames.SMALL_MINUS}
+                        color={Colors.GOLD3}
+                        title="Min Temperature"
+                        dataSource={minPressure1DS}
+                        unit="°C"
+                      />
+                      <DataEntry
+                        icon={IconNames.SMALL_PLUS}
+                        color={Colors.GOLD3}
+                        title="Max Temperature"
+                        dataSource={maxPressure1DS}
+                        unit="°C"
+                      />
+                    </Composition>
+                  </Card>
+                  <Card style={{ height: '100%' }}>
+                    <ButtonGroup fill>
+                      <PolledCSVLogger
+                        interval={1000} // ms
+                        timestampColumnFormat="T" // just the time in milliseconds since epoch
+                        // timestampColumnFormat="hh:mm:ss.SSS" // alternatively a regular time
+                        columns={[
+                          {
+                            dataSource: temperatureDataSource,
+                            column: 'temperature',
+                          },
+                          {
+                            dataSource: pressureDataSource,
+                            column: 'pressure_1',
+                            accessor: data => data.pressure_1,
+                          },
+                          {
+                            dataSource: pressureDataSource,
+                            column: 'pressure_2',
+                            accessor: data => data.pressure_2,
+                          },
+                        ]}
+                        selectSaveLocationText="Browse"
+                      />
+                    </ButtonGroup>
+                  </Card>
+                </Composition>
               </Areas.TemperatureDetails>
             </ZoomWrapper>
 
