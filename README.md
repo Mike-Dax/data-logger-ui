@@ -1,10 +1,8 @@
-
-
 # Data Logger
 
 A small temperature and pressure data logger project.
 
-# ![Electric UI screenshot](./docs/screenshot.png)
+![Screenshot-Light](./docs/screenshot-light.png#gh-light-mode-only)![Screenshot-Dark](./docs/screenshot-dark.png#gh-dark-mode-only)
 
 Features:
 
