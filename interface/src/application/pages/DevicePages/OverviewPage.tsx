@@ -175,14 +175,14 @@ export const OverviewPage = (props: RouteComponentProps) => {
                         icon={IconNames.SMALL_MINUS}
                         color={Colors.GOLD3}
                         title="Min Temperature"
-                        dataSource={minPressure1DS}
+                        dataSource={minTemperatureDS}
                         unit="°C"
                       />
                       <DataEntry
                         icon={IconNames.SMALL_PLUS}
                         color={Colors.GOLD3}
                         title="Max Temperature"
-                        dataSource={maxPressure1DS}
+                        dataSource={maxTemperatureDS}
                         unit="°C"
                       />
                     </Composition>
