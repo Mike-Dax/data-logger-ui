@@ -62,23 +62,38 @@ function DataEntry(props: {
   )
 }
 
+const TEMP_MAX_WINDOW = 10 * 60_000
+const PRES_MAX_WINDOW = 5_000
+
 export const OverviewPage = (props: RouteComponentProps) => {
   const isDarkMode = useDarkMode()
 
-  const meanTemperatureDS = mean(temperatureDataSource)
-  const minTemperatureDS = min(temperatureDataSource)
-  const maxTemperatureDS = max(temperatureDataSource)
+  const meanTemperatureDS = mean(
+    temperatureDataSource,
+    data => data,
+    TEMP_MAX_WINDOW,
+  )
+  const minTemperatureDS = min(
+    temperatureDataSource,
+    data => data,
+    TEMP_MAX_WINDOW,
+  )
+  const maxTemperatureDS = max(
+    temperatureDataSource,
+    data => data,
+    TEMP_MAX_WINDOW,
+  )
 
   const pressure1DS = map(pressureDataSource, data => data.pressure_1)
   const pressure2DS = map(pressureDataSource, data => data.pressure_2)
 
-  const meanPressure1DS = mean(pressure1DS)
-  const meanPressure2DS = mean(pressure2DS)
+  const meanPressure1DS = mean(pressure1DS, data => data, PRES_MAX_WINDOW)
+  const meanPressure2DS = mean(pressure2DS, data => data, PRES_MAX_WINDOW)
 
-  const minPressure1DS = min(pressure1DS)
-  const minPressure2DS = min(pressure2DS)
-  const maxPressure1DS = max(pressure1DS)
-  const maxPressure2DS = max(pressure2DS)
+  const minPressure1DS = min(pressure1DS, data => data, PRES_MAX_WINDOW)
+  const minPressure2DS = min(pressure2DS, data => data, PRES_MAX_WINDOW)
+  const maxPressure1DS = max(pressure1DS, data => data, PRES_MAX_WINDOW)
+  const maxPressure2DS = max(pressure2DS, data => data, PRES_MAX_WINDOW)
 
   return (
     <React.Fragment>
@@ -109,7 +124,7 @@ export const OverviewPage = (props: RouteComponentProps) => {
                         60_000,
                         120_000,
                         5 * 60_000,
-                        10 * 60_000,
+                        TEMP_MAX_WINDOW,
                       ]} // up to 10 minutes of data at a time
                       yMin={0}
                       yMinSoft={5}
@@ -219,7 +234,11 @@ export const OverviewPage = (props: RouteComponentProps) => {
                       accessor={data => data.pressure_2}
                       color={Colors.BLUE4}
                     />
-                    <RealTimeDomain window={5000} yMin={0} yMax={200} />
+                    <RealTimeDomain
+                      window={PRES_MAX_WINDOW}
+                      yMin={0}
+                      yMax={200}
+                    />
                     <TimeAxis />
                     <VerticalAxis label="Pressure (kPa)" labelPadding={50} />
                   </ChartContainer>
