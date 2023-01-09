@@ -28,8 +28,11 @@ import { HeartbeatConnectionMetadataReporter } from '@electricui/protocol-binary
 import { SerialPort } from 'serialport'
 import { usb } from 'usb'
 import { USBHintProducer } from '@electricui/transport-node-usb-discovery'
-import { LEDCodec } from './codecs'
-import { CodecDuplexPipelineWithDefaults } from '@electricui/protocol-binary-codecs'
+import { TimeStampedTemperatureCodec, TimeStampedPressureCodec } from './codecs'
+import {
+  CodecDuplexPipelineWithDefaults,
+  HardwareTimeBasis,
+} from '@electricui/protocol-binary-codecs'
 
 const typeCache = new TypeCache()
 
@@ -71,8 +74,13 @@ const serialTransportFactory = new TransportFactory(
 
     const codecPipeline = new CodecDuplexPipelineWithDefaults()
 
+    // Create the HardwareTimeBasis, specifying a uint32_t container
+    const hardwareTimeBasis = new HardwareTimeBasis(32)
+
     const customCodecs = [
-      new LEDCodec(), // Create each instance of the codecs
+      // Create each instance of the codecs
+      new TimeStampedTemperatureCodec(hardwareTimeBasis),
+      new TimeStampedPressureCodec(hardwareTimeBasis),
     ]
 
     // Add custom codecs.
@@ -153,7 +161,7 @@ const serialConsumer = new DiscoveryHintConsumer({
       path: identification.path,
       baudRate: configuration.baudRate,
       // if you have an Arduino that resets on connection, uncomment this line to delay the connection
-      // attachmentDelay: 2500,
+      attachmentDelay: 2500,
     }
 
     return options

@@ -39,39 +39,7 @@ export const Header = (
                 navigate('/')
               }}
             />
-
-            {connectionRequested ? (
-              <Button
-                minimal
-                intent="danger"
-                icon="cross"
-                text="Disconnect"
-                onClick={() => {
-                  disconnect().catch(err => {
-                    console.warn('Failed to disconnect', err)
-                  })
-                }}
-              />
-            ) : (
-              <Button
-                minimal
-                icon="link"
-                intent="success"
-                text="Connect again"
-                onClick={() => {
-                  const cancellationToken = getDeadline()
-
-                  connect(cancellationToken).catch(err => {
-                    if (cancellationToken.caused(err)) {
-                      return
-                    }
-
-                    console.warn('Failed to connect', err)
-                  })
-                }}
-              />
-            )}
-          </Navbar.Group>{' '}
+          </Navbar.Group>
           <Navbar.Group align={Alignment.RIGHT}>
             <Button
               minimal
@@ -83,7 +51,7 @@ export const Header = (
               }}
               active={page === ''}
             />
-            <Button
+            {/* <Button
               minimal
               large
               icon="settings"
@@ -92,8 +60,8 @@ export const Header = (
                 navigate(`/devices/${props.deviceID}/secondary`)
               }}
               active={page === 'secondary'}
-            />
-          </Navbar.Group>{' '}
+            /> */}
+          </Navbar.Group>
         </div>
       </Navbar>
     </div>

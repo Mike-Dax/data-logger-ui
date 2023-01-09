@@ -1,34 +1,100 @@
 import { Codec, Message } from '@electricui/core'
-
-import { LEDSettings } from '../../application/typedState'
+import {
+  HardwareMessageRetimer,
+  HardwareTimeBasis,
+} from '@electricui/protocol-binary-codecs'
 import { SmartBuffer } from 'smart-buffer'
 
 /**
- * If you are following the hello-blink example, structure use needs to be added.
- * Follow the getting started tutorial for UI development for notes.
+ *  typedef struct
+ *  {
+ *    uint32_t timestamp;
+ *    uint16_t temperature;
+ *  } TimeStampedTemperatureData_t;
  */
-export class LEDCodec extends Codec<LEDSettings> {
+export interface TimeStampedTemperatureData {
+  // We'll change the name to indicate that the origin will be based on the UI's time origin
+  offsetTimestamp: number
+  temperature: number
+}
+
+export class TimeStampedTemperatureCodec extends Codec<
+  TimeStampedTemperatureData
+> {
+  private retimer: HardwareMessageRetimer
+
+  constructor(timeBasis: HardwareTimeBasis) {
+    super()
+    this.retimer = new HardwareMessageRetimer(timeBasis)
+  }
+
   filter(message: Message): boolean {
-    return message.messageID === 'led'
+    return message.messageID === 'temp'
   }
 
-  encode(payload: LEDSettings) {
-    // SmartBuffers automatically keep track of read and write offsets / cursors.
-    const packet = new SmartBuffer({ size: 4 })
-    packet.writeUInt16LE(payload.glow_time)
-    packet.writeUInt8(payload.enable)
-
-    return packet.toBuffer()
+  encode(payload: TimeStampedTemperatureData): Buffer {
+    throw new Error(`temp is readonly`)
   }
 
-  decode(payload: Buffer) {
+  decode(payload: Buffer): TimeStampedTemperatureData {
     const reader = SmartBuffer.fromBuffer(payload)
-
-    const settings: LEDSettings = {
-      glow_time: reader.readUInt16LE(),
-      enable: reader.readUInt8(),
+    // Read out the timestamp from hardware
+    const hardwareOriginTimestamp = reader.readUInt32LE()
+    // Exchange the timestamp for one in the same time basis as the UI
+    const offsetTimestamp = this.retimer.exchange(hardwareOriginTimestamp)
+    // Read out the data
+    const data = reader.readUInt16LE()
+    return {
+      offsetTimestamp,
+      temperature: data,
     }
+  }
+}
 
-    return settings
+/**
+ *  typedef struct
+ *  {
+ *    uint32_t timestamp;
+ *    float pressure_1;
+ *    float pressure_2;
+ *  } TimeStampedPressureData_t;
+ */
+export interface TimeStampedPressureData {
+  // We'll change the name to indicate that the origin will be based on the UI's time origin
+  offsetTimestamp: number
+  pressure_1: number
+  pressure_2: number
+}
+
+export class TimeStampedPressureCodec extends Codec<TimeStampedPressureData> {
+  private retimer: HardwareMessageRetimer
+
+  constructor(timeBasis: HardwareTimeBasis) {
+    super()
+    this.retimer = new HardwareMessageRetimer(timeBasis)
+  }
+
+  filter(message: Message): boolean {
+    return message.messageID === 'pres'
+  }
+
+  encode(payload: TimeStampedPressureData): Buffer {
+    throw new Error(`pres is readonly`)
+  }
+
+  decode(payload: Buffer): TimeStampedPressureData {
+    const reader = SmartBuffer.fromBuffer(payload)
+    // Read out the timestamp from hardware
+    const hardwareOriginTimestamp = reader.readUInt32LE()
+    // Exchange the timestamp for one in the same time basis as the UI
+    const offsetTimestamp = this.retimer.exchange(hardwareOriginTimestamp)
+    // Read out the data
+    const pressure_1 = reader.readFloatLE()
+    const pressure_2 = reader.readFloatLE()
+    return {
+      offsetTimestamp,
+      pressure_1,
+      pressure_2,
+    }
   }
 }
